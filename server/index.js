@@ -18,7 +18,7 @@ server.applyMiddleware({ app });
 //     console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
 // });
 
-models.sequelize.sync().then(function () {
+models.sequelize.sync({ force: true }).then(function () {
     app.listen(PORT);
     console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
 }); 
