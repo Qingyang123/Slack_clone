@@ -11,7 +11,7 @@ export default (sequelize, DataTypes) => {
         password: {
             type: DataTypes.STRING,
         }
-    }, { underscored: true });
+    });
 
     User.associate = (models) => {
         User.belongsToMany(models.Team, {
