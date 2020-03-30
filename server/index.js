@@ -3,6 +3,7 @@ import { ApolloServer } from 'apollo-server-express';
 
 import typeDefs from './schema';
 import resolvers from './resolvers';
+import models from './models';
 
 
 const PORT = 4000;
@@ -13,6 +14,11 @@ const server = new ApolloServer({ typeDefs, resolvers });
 
 server.applyMiddleware({ app });
 
-app.listen({ port: PORT }, () => {
+// app.listen({ port: PORT }, () => {
+//     console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+// });
+
+models.sequelize.sync().then(function () {
+    app.listen(PORT);
     console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
-});
+}); 
