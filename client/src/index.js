@@ -5,6 +5,7 @@ import { ApolloClient } from 'apollo-boost';
 import { HttpLink } from 'apollo-link-http';
 import { InMemoryCache } from 'apollo-cache-inmemory';
 import * as serviceWorker from './serviceWorker';
+import 'semantic-ui-css/semantic.min.css'
 
 import Routes from './routes';
 
