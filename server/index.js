@@ -8,6 +8,8 @@ import models from './models';
 
 
 const PORT = 4000;
+const SECRET = "a string that you would never be able to guess";
+const SECRET2 = "another string, just used for refreshing"
 
 const app = express();
 app.use(cors('*'));
@@ -22,7 +24,9 @@ const server = new ApolloServer({
         models,
         user: {
             id: 1
-        }
+        },
+        SECRET,
+        SECRET2
     }
 });
 

@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
 import { extendObservable } from 'mobx';
 import { observer } from 'mobx-react';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 import { Container, Header, Form, Button } from 'semantic-ui-react';
 
-export default observer(class Login extends Component{
+class Login extends Component{
     constructor(props) {
         super(props);
 
@@ -17,9 +19,18 @@ export default observer(class Login extends Component{
         this[e.target.name] = e.target.value;
     }
 
-    onSubmit = () => {
-        console.log(this.email);
-        console.log(this.password);
+    onSubmit = async () => {
+        const { email, password } = this;
+        const res = await this.props.mutate({
+            variables: { email, password }
+        });
+        console.log(res);
+
+        const { ok, token, refreshToken } = res.data.login;
+        if (ok) {
+            localStorage.setItem('token', token);
+            localStorage.setItem('refreshToken', refreshToken);
+        }
     }
 
     render() {
@@ -49,4 +60,20 @@ export default observer(class Login extends Component{
             </Container>
         );
     }
-})
+}
+
+const loginMutation = gql`
+    mutation($email: String!, $password: String!) {
+        login(email: $email, password:$password) {
+            ok
+            token
+            refreshToken
+            errors {
+                path
+                message
+            }
+        }
+    }
+`;
+
+export default graphql(loginMutation)(observer(Login));
