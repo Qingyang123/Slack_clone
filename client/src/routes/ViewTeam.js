@@ -14,10 +14,10 @@ export default () => (
         <Channels
             teamName="Team Name"
             username="Username"
-            channels={[{id:1, name: "General"}, {id:2, name: "Random"}]}
+            channels={[{id:1, name: "general"}, {id:2, name: "random"}]}
             users={[{id:1, name: "SlackBot"}, {id:2, name: "User"}]}
         />
-        <Header channelName="General" />
+        <Header channelName="general" />
         <Messages/>
         <SendMessage channelName="general"/>
     </AppLayout>
