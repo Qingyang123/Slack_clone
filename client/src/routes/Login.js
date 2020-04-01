@@ -11,7 +11,8 @@ class Login extends Component{
 
         extendObservable(this, {
             email: '',
-            password: ''
+            password: '',
+            errors: {}
         });
     }
 
@@ -26,21 +27,29 @@ class Login extends Component{
         });
         console.log(res);
 
-        const { ok, token, refreshToken } = res.data.login;
+        const { ok, token, refreshToken, errors } = res.data.login;
         if (ok) {
             localStorage.setItem('token', token);
             localStorage.setItem('refreshToken', refreshToken);
+            this.props.history.push('/');
+        } else {
+            const err = {}
+            errors.forEach(({ path, message }) => {
+                err[`${path}Error`] = message;
+            })
+            this.errors = err;
         }
     }
 
     render() {
 
-        const { email, password } = this;
+        const { email, password, errors } = this;
         return (
             <Container text>
                 <Header as="h2">Login</Header>
                 <Form>
                     <Form.Input 
+                        error={errors['emailError']}
                         name='email' 
                         value={email} 
                         onChange={this.onChange} 
@@ -48,6 +57,7 @@ class Login extends Component{
                         placeholder='Email' 
                         fluid />
                     <Form.Input 
+                        error={errors['passwordError']}
                         name='password' 
                         value={password} 
                         onChange={this.onChange} 
