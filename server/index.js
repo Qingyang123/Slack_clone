@@ -18,12 +18,10 @@ app.use(cors('*'));
 
 const addUser = async (req, res, next) => {
     const token = req.headers['x-token'];
-    console.log('token: ', token);
     if (token) {
         try {
             const { user } = jwt.verify(token, SECRET);
             req.user = user;
-            console.log('user: ', req.user);
         } catch (err) {
             const refreshToken = req.headers['x-refresh-token'];
             const newTokens = await refreshTokens(token, refreshToken, models, SECRET, SECRET2);
