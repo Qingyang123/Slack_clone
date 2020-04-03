@@ -1,4 +1,4 @@
-import { formatErrors } from '../formatErrors';
+import formatErrors from '../formatErrors';
 
 export default {
     Mutation: {

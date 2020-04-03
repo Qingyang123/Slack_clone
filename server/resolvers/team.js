@@ -1,4 +1,4 @@
-import { formatErrors } from '../formatErrors';
+import formatErrors from '../formatErrors';
 import { requiresAuth } from '../permissions';
 import team from '../schema/team';
 
@@ -18,12 +18,12 @@ export default {
                     public: true,
                     teamId: team.id
                 });
+
                 return {
                     ok: true,
-                    team
+                    team,
                 };
             } catch(err) {
-                console.log(err);
                 return {
                     ok: false,
                     errors: formatErrors(err, models)

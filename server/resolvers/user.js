@@ -1,5 +1,5 @@
 import { tryLogin } from '../auth';
-import { formatErrors } from '../formatErrors';
+import formatErrors from '../formatErrors';
 
 
 export default {

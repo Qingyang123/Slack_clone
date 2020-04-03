@@ -28,6 +28,7 @@ class CreateTeam extends Component{
                 variables: { name }
             });
         } catch(err) {
+            console.log(err);
             this.props.history.push('/login');
             return;
         }
