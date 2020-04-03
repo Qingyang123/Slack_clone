@@ -1,12 +1,21 @@
 import formatErrors from '../formatErrors';
 import { requiresAuth } from '../permissions';
-import team from '../schema/team';
 
 export default {
     Query: {
         allTeams: requiresAuth.createResolver(async (parent, args, { models, user }) => {
             return models.Team.findAll({where: { owner: user.id }}, {raw: true});
-        })
+        }),
+        invitedTeams: requiresAuth.createResolver(async (parent, args, { models, user }) => {
+            return models.Team.findAll({
+                include: [
+                    {
+                        model: models.User,
+                        where: { id: user.id }
+                    }
+                ]
+            }, {raw: true});
+        }),
     },
     Mutation: {
         

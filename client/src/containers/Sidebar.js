@@ -15,20 +15,18 @@ class Sidebar extends Component {
         openInvitePeopleModal: false,
     };
 
-    handleCloseAddChannelModal = () => {
-        this.setState({ openAddChannelModal: false })
+    toggleAddChannelModal = (e) => {
+        if (e) e.preventDefault();
+        this.setState(prevState => ({
+            openAddChannelModal: !prevState.openAddChannelModal
+        }))
     }
 
-    handleAddChannelClick = () => {
-        this.setState({ openAddChannelModal: true })
-    }
-
-    handleCloseInvitePeopleModal = () => {
-        this.setState({ openInvitePeopleModal: false });
-    }
-
-    handleInvitePeopleClick = () => {
-        this.setState({ openInvitePeopleModal: true });
+    toggleInvitePeopleClick = (e) => {
+        if (e) e.preventDefault();
+        this.setState(prevState => ({
+            openInvitePeopleModal: !prevState.openInvitePeopleModal
+        }))
     }
 
     render() {
@@ -56,21 +54,21 @@ class Sidebar extends Component {
                     teamId={team.id}
                     channels={team.channels}
                     users={[{id:1, name: "SlackBot"}, {id:2, name: "User"}]}
-                    onAddChannelClick={this.handleAddChannelClick}
-                    onInvitePeopleClick={this.handleInvitePeopleClick}
+                    onAddChannelClick={this.toggleAddChannelModal}
+                    onInvitePeopleClick={this.toggleInvitePeopleClick}
                 />
 
                 <AddChannelModal
                     key='sidebar-add-channel-modal'
                     teamId={team.id}
                     open={this.state.openAddChannelModal}
-                    onClose={this.handleCloseAddChannelModal}/>
+                    onClose={this.toggleAddChannelModal}/>
                 
                 <InvitePeopleModal
                     key='invite-people-modal'
                     teamId={team.id}
                     open={this.state.openInvitePeopleModal}
-                    onClose={this.handleCloseInvitePeopleModal}/>
+                    onClose={this.toggleInvitePeopleClick}/>
             </>
         );
     }
