@@ -37,7 +37,7 @@ const ViewTeam = ({ data: { loading, allTeams, invitedTeams }, match: { params: 
             {channel && (
                 <MessageContainer channelId={channel.id}/>
             )}
-            {channel && <SendMessage channelName={channel.name} />}
+            {channel && <SendMessage channelName={channel.name} channelId={channel.id} />}
         </AppLayout>
     );
 };

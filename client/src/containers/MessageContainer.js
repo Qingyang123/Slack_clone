@@ -2,6 +2,7 @@ import React from 'react'
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag'
 import Messages from '../components/Messages';
+import { Comment } from 'semantic-ui-react';
 
 const MessageContainer = ({ channelId }) => {
     return (
@@ -15,7 +16,24 @@ const MessageContainer = ({ channelId }) => {
                     const messages = data.messages;
                     return (
                         <Messages>
-                            {/* <ul>{messages.map(message)}</ul> */}
+                            <Comment.Group>
+                                {
+                                    messages.map(m => (
+                                        <Comment key = {`message-${m.id}`}>
+                                            <Comment.Content>
+                                                <Comment.Author as='a'>{m.user.username}</Comment.Author>
+                                                <Comment.Metadata>
+                                                    <div>{m.createdAt}</div>
+                                                </Comment.Metadata>
+                                                <Comment.Text>{m.text}</Comment.Text>
+                                                <Comment.Actions>
+                                                <Comment.Action>Reply</Comment.Action>
+                                                </Comment.Actions>
+                                            </Comment.Content>
+                                        </Comment>
+                                    ))
+                                }
+                            </Comment.Group>
                         </Messages>
                     );
                 }
@@ -29,10 +47,10 @@ const messagesQuery = gql`
         messages(channelId: $channelId) {
             id
             text
-            # user {
-            #     username
-            # }
-            # createdAt
+            user {
+                username
+            }
+            createdAt
         }
     }
 `;
