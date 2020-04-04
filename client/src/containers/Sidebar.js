@@ -33,11 +33,13 @@ class Sidebar extends Component {
         const { team, teams } = this.props
 
         let username = "";
+        let isOwner = false;
         
         try {
             const token = localStorage.getItem('token');
             const { user } = decode(token);
             username = user.username;
+            isOwner = user.id === team.owner;
         } catch(err) {
             console.log(err);
         }
@@ -53,6 +55,7 @@ class Sidebar extends Component {
                     username={username}
                     teamId={team.id}
                     channels={team.channels}
+                    isOwner={isOwner}
                     users={[{id:1, name: "SlackBot"}, {id:2, name: "User"}]}
                     onAddChannelClick={this.toggleAddChannelModal}
                     onInvitePeopleClick={this.toggleInvitePeopleClick}
