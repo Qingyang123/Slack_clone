@@ -4,9 +4,9 @@ import { graphql } from 'react-apollo';
 import findIndex from 'lodash/findIndex';
 import AppLayout from '../components/AppLayout';
 import Header from '../components/Header';
-import Messages from '../components/Messages';
 import SendMessage from '../components/SendMessage';
 import Sidebar from '../containers/Sidebar';
+import MessageContainer from '../containers/MessageContainer';
 
 import { allTeamsQuery } from '../graphql/team';
 
@@ -34,7 +34,9 @@ const ViewTeam = ({ data: { loading, allTeams, invitedTeams }, match: { params: 
                     letter: t.name.charAt(0).toUpperCase()
                 }))}/>
             {channel && <Header channelName={channel.name} />}
-            {channel && <Messages channelId={channel.id}/>}
+            {channel && (
+                <MessageContainer channelId={channel.id}/>
+            )}
             {channel && <SendMessage channelName={channel.name} />}
         </AppLayout>
     );
