@@ -4,6 +4,8 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import { ApolloServer } from 'apollo-server-express';
 import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
+import { createServer } from 'http';
+
 
 import models from './models';
 import { refreshTokens } from './auth';
@@ -55,9 +57,14 @@ const server = new ApolloServer({
 });
 
 server.applyMiddleware({ app });
-
+const httpServer = createServer(app);
+server.installSubscriptionHandlers(httpServer);
 
 models.sequelize.sync().then(function () {
-    app.listen(PORT);
-    console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+    // app.listen(PORT);
+    // console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+    httpServer.listen(PORT, () => {
+        console.log(`🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`)
+        console.log(`🚀 Subscriptions ready at ws://localhost:${PORT}${server.subscriptionsPath}`)
+    })
 }); 
