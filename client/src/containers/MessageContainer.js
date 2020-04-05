@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Query } from 'react-apollo';
-import gql from 'graphql-tag'
+import gql from 'graphql-tag';
+import moment from 'moment';
 import Messages from '../components/Messages';
 import { Comment } from 'semantic-ui-react';
 
@@ -20,8 +21,35 @@ const newChannelMessageSubscription = gql`
 
 class MessageWrapper extends Component {
     componentDidMount() {
+        console.log(this.props);
         this.props.subscribeToNewMessages();
     }
+
+    // componentWillMount() {
+    //     console.log('props: ', this.props.channelId)
+    //     console.log(`subscribing to ${this.props.channelId}`)
+
+    //     this.unscubscribe = this.props.subscribeToNewMessages(this.props.channelId);
+    // }
+
+    // componentWillReceiveProps({ channelId }) {
+    //     console.log('props: ', this.props.channelId, channelId)
+    //     if (this.props.channelId !== channelId) { 
+    //         if(this.unscubscribe) {
+    //             console.log(`unsubscribing to ${this.props.channelId}`)
+    //             this.unscubscribe(this.props.channelId)
+    //         }
+    //         console.log(`subscribing to ${channelId}`)
+
+    //         this.unscubscribe = this.props.subscribeToNewMessages(channelId);
+    //     }
+    // }
+    // componentWillUnmount() {
+    //     if(this.unscubscribe) {
+    //         console.log(`unsubscribing to ${this.props.channelId}`)
+    //         this.unscubscribe(this.props.channelId)
+    //     }
+    // }
 
     render() {
         const {messages} = this.props
@@ -35,7 +63,8 @@ class MessageWrapper extends Component {
                                 <Comment.Content>
                                     <Comment.Author as='a'>{m.user.username}</Comment.Author>
                                     <Comment.Metadata>
-                                        <div>{m.createdAt}</div>
+                                        {/* <div>{m.createdAt}</div> */}
+                                        { moment(m.createdAt,"ddd MMM D YYYY HH:mm:ss").fromNow()}
                                     </Comment.Metadata>
                                     <Comment.Text>{m.text}</Comment.Text>
                                     <Comment.Actions>
@@ -57,7 +86,7 @@ class MessageContainer extends Component {
     render() {
         const { channelId } = this.props;
         return (
-            <Query query={messagesQuery} variables={{ channelId }}>
+            <Query query={messagesQuery} variables={{ channelId }} fetchPolicy={"network-only"}>
                 {
                     (props) => {
                         const { subscribeToMore, loading, error, data } = props;
@@ -69,10 +98,12 @@ class MessageContainer extends Component {
                         return (
                             <MessageWrapper
                                 messages={messages}
+                                channelId={channelId}
                                 subscribeToNewMessages={() => (
                                     subscribeToMore({
                                         document: newChannelMessageSubscription,
                                         variables: { channelId },
+                                        fetchPolicy: 'network-only',
                                         updateQuery: (prev, { subscriptionData }) => {
                                             console.log('prev: ', prev);
                                             console.log('subscriptionData: ', subscriptionData);
