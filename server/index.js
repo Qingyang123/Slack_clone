@@ -53,7 +53,38 @@ const server = new ApolloServer({
         user: connection ? connection.context : req.user,
         SECRET,
         SECRET2
-    })
+    }),
+    subscriptions: {
+        onConnect: async(connectionParams, webSocket, context) => {
+            console.log(connectionParams);
+            const { token, refreshToken } = connectionParams;
+
+            if (token && refreshToken) {
+                let user = null;
+                try {
+                    const decoded = jwt.verify(token, SECRET);
+                    user = decoded.user;
+                    console.log(user);
+                } catch(err) {
+                    console.log('catch error');
+                    const newTokens = await refreshTokens(token, refreshToken, models, SECRET, SECRET2);
+                    user = newTokens.user;
+                    console.log(user);
+                }
+
+                if (!user) {
+                    throw new Error('Invalid auth tokens');
+                }
+                const member = await models.Member.findOne({ where: { teamId: 1, userId: user.id } });
+
+                if (!member) {
+                    throw new Error('Missing auth tokens!');
+                }
+                return true;
+            }
+            throw new Error ('Missing auth tokens')
+        }
+    },
 });
 
 server.applyMiddleware({ app });
