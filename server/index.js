@@ -48,9 +48,9 @@ const resolvers = mergeResolvers(fileLoader(path.join(__dirname, './resolvers'))
 const server = new ApolloServer({
     typeDefs, 
     resolvers,
-    context: ({ req }) => ({
+    context: ({ req, connection }) => ({
         models,
-        user: req.user,
+        user: connection ? connection.context : req.user,
         SECRET,
         SECRET2
     })
