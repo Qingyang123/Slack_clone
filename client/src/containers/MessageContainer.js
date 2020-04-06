@@ -20,36 +20,32 @@ const newChannelMessageSubscription = gql`
 `;
 
 class MessageWrapper extends Component {
-    componentDidMount() {
-        console.log(this.props);
-        this.props.subscribeToNewMessages();
+
+    componentWillMount() {
+        // console.log('props: ', this.props.channelId)
+        // console.log(`subscribing to ${this.props.channelId}`)
+
+        this.unscubscribe = this.props.subscribeToNewMessages(this.props.channelId);
     }
 
-    // componentWillMount() {
-    //     console.log('props: ', this.props.channelId)
-    //     console.log(`subscribing to ${this.props.channelId}`)
+    componentWillReceiveProps({ channelId }) {
+        // console.log('props: ', this.props.channelId, channelId)
+        if (this.props.channelId !== channelId) { 
+            if(this.unscubscribe) {
+                // console.log(`unsubscribing to ${this.props.channelId}`)
+                this.unscubscribe(this.props.channelId)
+            }
+            // console.log(`subscribing to ${channelId}`)
 
-    //     this.unscubscribe = this.props.subscribeToNewMessages(this.props.channelId);
-    // }
-
-    // componentWillReceiveProps({ channelId }) {
-    //     console.log('props: ', this.props.channelId, channelId)
-    //     if (this.props.channelId !== channelId) { 
-    //         if(this.unscubscribe) {
-    //             console.log(`unsubscribing to ${this.props.channelId}`)
-    //             this.unscubscribe(this.props.channelId)
-    //         }
-    //         console.log(`subscribing to ${channelId}`)
-
-    //         this.unscubscribe = this.props.subscribeToNewMessages(channelId);
-    //     }
-    // }
-    // componentWillUnmount() {
-    //     if(this.unscubscribe) {
-    //         console.log(`unsubscribing to ${this.props.channelId}`)
-    //         this.unscubscribe(this.props.channelId)
-    //     }
-    // }
+            this.unscubscribe = this.props.subscribeToNewMessages(channelId);
+        }
+    }
+    componentWillUnmount() {
+        if(this.unscubscribe) {
+            // console.log(`unsubscribing to ${this.props.channelId}`)
+            this.unscubscribe(this.props.channelId)
+        }
+    }
 
     render() {
         const {messages} = this.props
@@ -63,7 +59,6 @@ class MessageWrapper extends Component {
                                 <Comment.Content>
                                     <Comment.Author as='a'>{m.user.username}</Comment.Author>
                                     <Comment.Metadata>
-                                        {/* <div>{m.createdAt}</div> */}
                                         { moment(m.createdAt,"ddd MMM D YYYY HH:mm:ss").fromNow()}
                                     </Comment.Metadata>
                                     <Comment.Text>{m.text}</Comment.Text>

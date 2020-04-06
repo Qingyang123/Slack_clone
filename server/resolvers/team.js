@@ -21,7 +21,7 @@ export default {
         
         createTeam: requiresAuth.createResolver(async (parent, args, { models, user }) => {
             try {
-                const team = await models.Team.create({...args});
+                const team = await models.Team.create({...args, owner: user.id});
                 await models.Channel.create({ name: 'general', public: true, teamId: team.id });
                 await models.Member.create({ teamId: team.id, userId: user.id, admin: true });
 

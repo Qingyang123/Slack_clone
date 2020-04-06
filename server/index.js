@@ -50,45 +50,31 @@ const server = new ApolloServer({
     resolvers,
     context: ({ req, connection }) => ({
         models,
-        user: connection ? connection.context : req.user,
+        user: connection ? connection.context.user : req.user,
         SECRET,
         SECRET2
     }),
     subscriptions: {
         onConnect: async(connectionParams, webSocket, context) => {
-            console.log('connectionParams: ', connectionParams);
             const { token, refreshToken } = connectionParams;
 
             if (token && refreshToken) {
                 let user = null;
                 try {
-                    console.log('try block')
-                    const decoded = jwt.verify(token, SECRET);
-                    user = decoded.user;
-                    console.log('after decode')
-                    console.log(user);
+                    const { user } = jwt.verify(token, SECRET);
+                    return { models, user };
                 } catch(err) {
-                    console.log('inside catch')
-                    console.log('token: ', token, refreshToken)
-                    console.log('refresh: ', refreshToken)
                     const newTokens = await refreshTokens(token, refreshToken, models, SECRET, SECRET2);
-                    console.log('new tokens: ', newTokens);
-                    user = newTokens.user;
-                    console.log(user);
+                    return { models, user: newTokens.user };
                 }
 
-                if (!user) {
-                    console.log('catch error');
-                    throw new Error('Invalid auth tokens');
-                }
                 // const member = await models.Member.findOne({ where: { teamId: 1, userId: user.id } });
 
                 // if (!member) {
                 //     throw new Error('Missing auth tokens!');
                 // }
-                return true;
             }
-            throw new Error ('Missing auth tokens')
+            return { models }
         }
     },
 });

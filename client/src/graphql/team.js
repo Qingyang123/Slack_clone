@@ -8,6 +8,7 @@ export const meQuery = gql`
             teams {
                 id
                 name
+                owner
                 channels {
                     id
                     name
