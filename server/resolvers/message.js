@@ -3,7 +3,23 @@ import { requiresAuth } from '../permissions';
 
 const pubsub = new PubSub();
 
-const NEW_CHANNEL_MESSAGE = "NEW_CHANNEL_MESSAGE"
+const NEW_CHANNEL_MESSAGE = "NEW_CHANNEL_MESSAGE";
+
+const isChannelMember = async (channelId, models, user) => {
+    // 
+    console.log('is part of team?',channelId, user)
+    const channel = await models.Channel.findOne({ where: { id: channelId }})
+    console.log('a channel', channel.dataValues.teamId, user)
+
+    const member = await models.Member.findOne({where: { teamId: channel.dataValues.teamId , userId: user.id}})
+    console.log('a member', member)
+
+    if(!member) {
+        console.log("You have to be a member of the team to subscribe to messages")
+        return false
+    }
+    return true
+}
 
 export default {
     Message: {
@@ -16,11 +32,15 @@ export default {
         newChannelMessage: {
             subscribe: withFilter(
                 (parent, { channelId }, { models, user }) => {
-                    // const channel = await models.Channel.findOne({ where: { id: channelId } });
-                    // const member = await models.Member.findOne({ where: { teamId: channel.teamId, userId: user.id } });
-                    // if (! member) {
-                    //     throw new Error('You have to be a member of the team to subscribe to its messages');
-                    // }
+                    console.log('userr in sub', user)
+                    isChannelMember(channelId, models, user).then(result => {
+                        console.log('the data ', result)
+                        if (!result) {
+                            throw new Error ("You have to be a member of the team to subscribe to messages")
+                            
+                        }
+                        return result
+                    })
                     return pubsub.asyncIterator("NEW_CHANNEL_MESSAGE" );
                 },
                 (payload, args) => payload.channelId === args.channelId
