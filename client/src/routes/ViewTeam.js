@@ -8,13 +8,14 @@ import SendMessage from '../components/SendMessage';
 import Sidebar from '../containers/Sidebar';
 import MessageContainer from '../containers/MessageContainer';
 
-import { allTeamsQuery } from '../graphql/team';
+import { meQuery } from '../graphql/team';
 
-
-const ViewTeam = ({ data: { loading, allTeams, invitedTeams }, match: { params: { teamId, channelId } } }) => {
+// { loading, me }
+const ViewTeam = ({ data: { loading, me }, match: { params: { teamId, channelId } } }) => {
     if (loading) return null;
 
-    const teams = [...allTeams, ...invitedTeams];
+    console.log(me);
+    const { teams } = me;
     if (teams.length === 0) return <Redirect to='/create-team'/>
 
     const teamIdInteger = parseInt(teamId, 10);
@@ -41,4 +42,4 @@ const ViewTeam = ({ data: { loading, allTeams, invitedTeams }, match: { params: 
     );
 };
 
-export default graphql(allTeamsQuery)(ViewTeam);
+export default graphql(meQuery, {options: {fetchPolicy: 'network-only'}})(ViewTeam);

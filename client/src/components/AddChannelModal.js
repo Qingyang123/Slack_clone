@@ -5,7 +5,7 @@ import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash/flowRight';
 import { Form, Button, Modal, Input } from 'semantic-ui-react';
-import { allTeamsQuery } from '../graphql/team';
+import { meQuery } from '../graphql/team';
 
 const AddChannelModal = ({
     open, 
@@ -74,10 +74,10 @@ export default compose(
                 update: (store, { data: { createChannel } }) => {
                     const { ok, channel } = createChannel;
                     if (ok) {
-                        const data = store.readQuery({ query: allTeamsQuery });
-                        const teamIdx = findIndex(data.allTeams, ['id', teamId]);
-                        data.allTeams[teamIdx].channels.push(channel);
-                        store.writeQuery({ query: allTeamsQuery, data })
+                        const data = store.readQuery({ query: meQuery });
+                        const teamIdx = findIndex(data.me.teams, ['id', teamId]);
+                        data.me.teams[teamIdx].channels.push(channel);
+                        store.writeQuery({ query: meQuery, data })
                     } else {
                         return
                     }

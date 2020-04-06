@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 export const createTokens = async (user, secret, secret2) => {
 	const createToken = jwt.sign(
 		{
-			user: _.pick(user, ['id', 'username']),
+			user: _.pick(user, ['id', 'username', 'isAdmin']),
 		},
 		secret,
 		{
@@ -53,7 +53,7 @@ export const refreshTokens = async (token, refreshToken, models, SECRET, SECRET2
 		return {};
 	}
 
-	const [newToken, newRefreshToken] = await createTokens(user, SECRET, user.refreshSecret);
+	const [newToken, newRefreshToken] = await createTokens(user, SECRET, refreshSecret);
 	return {
 		token: newToken,
 		refreshToken: newRefreshToken,
