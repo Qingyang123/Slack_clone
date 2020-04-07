@@ -1,5 +1,5 @@
 import { PubSub, withFilter } from 'apollo-server';
-import { requiresAuth } from '../permissions';
+import { requiresAuth, requiresTeamAccess } from '../permissions';
 
 const pubsub = new PubSub();
 
@@ -26,20 +26,12 @@ export default {
     },
     Subscription: {
         newChannelMessage: {
-            subscribe: withFilter(
-                (parent, { channelId }, { models, user }) => {
-                    console.log('userr in sub', user)
-                    isChannelMember(channelId, models, user).then(result => {
-                        if (!result) {
-                            throw new Error ("You have to be a member of the team to subscribe to messages")
-                            
-                        }
-                        return result
-                    })
-                    return pubsub.asyncIterator("NEW_CHANNEL_MESSAGE" );
-                },
-                (payload, args) => payload.channelId === args.channelId
-            )
+            subscribe: requiresTeamAccess.createResolver(withFilter((parent, { channelId } , { models, user }) => {
+                return pubsub.asyncIterator("NEW_CHANNEL_MESSAGE" )            
+            },
+            (payload, args) => {
+                return payload.channelId === args.channelId ;
+            }))
         }
     },
     Query: {
