@@ -12,8 +12,12 @@ import MessageContainer from '../containers/MessageContainer';
 
 import { meQuery } from '../graphql/team';
 
-// { loading, me }
+// { mutate, data: { loading, me }, match: { params: { teamId, channelId } } }
 const ViewTeam = ({ mutate, data: { loading, me }, match: { params: { teamId, channelId } } }) => {
+    // console.log(props);
+    // const { loading, me } = props.data;
+    // const { teamId, channelId } = props.match.params;
+    
     if (loading) return null;
     console.log(me);
     const { teams, username, id } = me;

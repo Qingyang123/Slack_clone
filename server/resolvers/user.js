@@ -18,7 +18,10 @@ export default {
     },
     Query: {
         allUsers: (parent, args, { models }) => models.User.findAll(),
-        me: requiresAuth.createResolver((parent, { id }, { models, user }) => models.User.findOne({ where: { id: user.id } })),
+        me: requiresAuth.createResolver((parent, { id }, { models, user }) => {
+            console.log(models.User.findOne({ where: { id: user.id } }));
+            return models.User.findOne({ where: { id: user.id } });
+        }),
         // allTeams: requiresAuth.createResolver(async (parent, args, { models, user }) => {
         //     return models.Team.findAll({where: { owner: user.id }}, {raw: true});
         // }),
