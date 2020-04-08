@@ -2,21 +2,16 @@ import formatErrors from '../formatErrors';
 import { requiresAuth } from '../permissions';
 
 export default {
-    // Query: {
-        // allTeams: requiresAuth.createResolver(async (parent, args, { models, user }) => {
-        //     return models.Team.findAll({where: { owner: user.id }}, {raw: true});
-        // }),
-        // invitedTeams: requiresAuth.createResolver(async (parent, args, { models, user }) => {
-        //     return models.Team.findAll({
-        //         include: [
-        //             {
-        //                 model: models.User,
-        //                 where: { id: user.id }
-        //             }
-        //         ]
-        //     }, {raw: true});
-        // }),
-    // },
+    Query: {
+        getTeamMembers: requiresAuth.createResolver(async (parent, { teamId }, { models, user }) => {
+            return await models.User.findAll({
+                include: [{
+                    model: models.Team,
+                    where: { id: teamId },
+                }]   
+            }, { raw: true })
+        })
+    },
     Mutation: {
         
         createTeam: requiresAuth.createResolver(async (parent, args, { models, user }) => {

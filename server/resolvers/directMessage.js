@@ -5,7 +5,6 @@ import { Op } from 'sequelize';
 export default {
     DirectMessage: {
         sender: (parent, args, { models }) => {
-            console.log(parent);
             const { user, userId, senderId } = parent;
             if (user) return user
             return models.User.findOne({ where: { id: senderId } })

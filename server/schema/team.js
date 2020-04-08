@@ -12,6 +12,7 @@ export default gql`
     type Query {
         allTeams: [Team!]!
         invitedTeams: [Team!]!
+        getTeamMembers(teamId: Int!): [User!]!
     }
 
     type CreateTeamResponse {
