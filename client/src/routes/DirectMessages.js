@@ -13,12 +13,10 @@ import DirectMessageContainer from '../containers/DirectMessageContainer';
 import { meQuery } from '../graphql/team';
 
 // { data: { loading, me }, match: { params: { teamId, userId } } }
-const DirectMessages = ({ mutate, data: { loading, me }, match: { params: { teamId, userId } } }) => {
-    // console.log(props);
-    // const { loading, me } = props.data;
-    // const { teamId, userId } = props.match.params;
+const DirectMessages = ({ mutate, data: { loading, me, getUser }, match: { params: { teamId, userId } } }) => {
+
     if (loading) return null;
-    // console.log(me);
+    console.log(me);
     const { teams, username, id } = me;
     if (teams.length === 0) return <Redirect to='/create-team'/>
 
@@ -36,8 +34,8 @@ const DirectMessages = ({ mutate, data: { loading, me }, match: { params: { team
                     id: t.id,
                     letter: t.name.charAt(0).toUpperCase()
                 }))}/>
-            <Header channelName={'username'} />
-            <DirectMessageContainer teamId={teamId} otherUserId={userId}/>
+            <Header channelName={getUser.username} />
+            <DirectMessageContainer teamId={team.id} otherUserId={userId}/>
             <SendMessage placeholder={userId} onSubmit={async (text) => {
                 console.log('here');
                 const res = await mutate({
@@ -45,9 +43,26 @@ const DirectMessages = ({ mutate, data: { loading, me }, match: { params: { team
                         text,
                         receiverId: parseInt(userId),
                         teamId: teamIdInteger
+                    },
+                    optimisticResponse: {
+                        createDirectMessage: true,
+                    },
+                    update: (store) => {
+                            const data = store.readQuery({ query: meQuery });
+                            const teamIdx2 = findIndex(data.me.teams, ['id', team.id]);
+                            const notAlreadyThere = data.me.teams[teamIdx2].directMessageMembers.every(member => member.id !== parseInt(userId))
+                            if (notAlreadyThere) {
+                                data.me.teams[teamIdx2].directMessageMembers.push({
+                                    __typename: 'User',
+                                    id: parseInt(userId),
+                                    username: getUser.username
+                                });
+                                store.writeQuery({ query: meQuery, data })
+                            }
                     }
                 })
                 console.log(res);
+                
             }}/>
         </AppLayout>
     );
@@ -61,7 +76,37 @@ const createDirectMessageMutation = gql`
     }
 `;
 
+const directMessageMeQuery = gql`
+    query($userId: Int!) {
+        getUser(userId: $userId) {
+            username
+        }
+        me {
+            id
+            username
+            teams {
+                id
+                name
+                owner
+                directMessageMembers {
+                    id
+                    username
+                }
+                channels {
+                    id
+                    name
+                }
+            }
+        }
+    }
+`;
+
 export default compose(
-    graphql(meQuery, {options: {fetchPolicy: 'network-only'}}),
+    graphql(directMessageMeQuery, {
+        options: props => ({
+            fetchPolicy: 'network-only',
+            variables: { userId: parseInt(props.match.params.userId) }
+        })
+    }),
     graphql(createDirectMessageMutation),
 )(DirectMessages);
