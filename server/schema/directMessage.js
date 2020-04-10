@@ -7,7 +7,11 @@ export default gql`
         text: String!
         sender: User!
         receiverId: Int!
-        created_at: String!
+        created_at: String
+    }
+
+    type Subscription {
+        newDirectMessage(teamId: Int!, otherUserId: Int!): DirectMessage!
     }
 
     type Query {

@@ -6,44 +6,56 @@ import Messages from '../components/Messages';
 import { Comment } from 'semantic-ui-react';
 
 
+const newDirectMessageSubscription = gql`
+    subscription($teamId: Int!, $otherUserId: Int!) {
+        newDirectMessage(teamId: $teamId, otherUserId: $otherUserId) {
+            id
+            sender {
+                username
+            }
+            text
+            created_at
+        }
+    }
+`;
 
 
 class DirectMessageWrapper extends Component {
 
-    // componentWillMount() {
-    //     // console.log('props: ', this.props.channelId)
-    //     // console.log(`subscribing to ${this.props.channelId}`)
+    componentWillMount() {
+        // console.log('props: ', this.props.channelId)
+        // console.log(`subscribing to ${this.props.channelId}`)
 
-    //     this.unscubscribe = this.props.subscribeToNewMessages(this.props.channelId);
-    // }
+        this.unscubscribe = this.props.subscribeToNewDirectMessages(this.props.teamId, this.props.otherUserId);
+    }
 
-    // componentWillReceiveProps({ channelId }) {
-    //     // console.log('props: ', this.props.channelId, channelId)
-    //     if (this.props.channelId !== channelId) { 
-    //         if(this.unscubscribe) {
-    //             // console.log(`unsubscribing to ${this.props.channelId}`)
-    //             this.unscubscribe(this.props.channelId)
-    //         }
-    //         // console.log(`subscribing to ${channelId}`)
+    componentWillReceiveProps({ teamId, otherUserId }) {
+        // console.log('props: ', this.props.channelId, channelId)
+        if (this.props.teamId !== teamId || this.props.otherUserId !== otherUserId) { 
+            if(this.unscubscribe) {
+                // console.log(`unsubscribing to ${this.props.channelId}`)
+                this.unscubscribe()
+            }
+            // console.log(`subscribing to ${channelId}`)
 
-    //         this.unscubscribe = this.props.subscribeToNewMessages(channelId);
-    //     }
-    // }
-    // componentWillUnmount() {
-    //     if(this.unscubscribe) {
-    //         // console.log(`unsubscribing to ${this.props.channelId}`)
-    //         this.unscubscribe(this.props.channelId)
-    //     }
-    // }
+            this.unscubscribe = this.props.subscribeToNewDirectMessages(teamId, otherUserId);
+        }
+    }
+    componentWillUnmount() {
+        if(this.unscubscribe) {
+            // console.log(`unsubscribing to ${this.props.channelId}`)
+            this.unscubscribe()
+        }
+    }
 
     render() {
-        const {messages} = this.props
+        const {directMessages} = this.props
 
         return (
             <Messages>
                 <Comment.Group>
                     {
-                        messages.map(m => (
+                        directMessages.map(m => (
                             <Comment key = {`directMessage-${m.id}`}>
                                 <Comment.Content>
                                     <Comment.Author as='a'>{m.sender.username}</Comment.Author>
@@ -79,28 +91,29 @@ class DirectMessageContainer extends Component {
                         if (error) console.log(error);
                         if (data) console.log(data);
                             
-                        const messages = data.directMessages;
+                        const directMessages = data.directMessages;
                         return (
                             <DirectMessageWrapper
-                                messages={messages}
-                                // channelId={channelId}
-                                // subscribeToNewMessages={() => (
-                                //     subscribeToMore({
-                                //         document: newChannelMessageSubscription,
-                                //         variables: { channelId },
-                                //         fetchPolicy: 'network-only',
-                                //         updateQuery: (prev, { subscriptionData }) => {
-                                //             console.log('prev: ', prev);
-                                //             console.log('subscriptionData: ', subscriptionData);
-                                //             if (! subscriptionData.data) return prev;
-                                //             return {
-                                //                 ...prev,
-                                //                 messages: [...prev.messages, subscriptionData.data.newChannelMessage]
-                                //             }
-                                //         },
-                                //         onError: err => console.error(err),
-                                //     })
-                                // )}
+                                directMessages={directMessages}
+                                teamId={teamId}
+                                otherUserId={otherUserId}
+                                subscribeToNewDirectMessages={() => (
+                                    subscribeToMore({
+                                        document: newDirectMessageSubscription,
+                                        variables: { teamId: parseInt(teamId), otherUserId: parseInt(otherUserId) },
+                                        fetchPolicy: 'network-only',
+                                        updateQuery: (prev, { subscriptionData }) => {
+                                            console.log('prev: ', prev);
+                                            console.log('subscriptionData: ', subscriptionData);
+                                            if (! subscriptionData.data) return prev;
+                                            return {
+                                                ...prev,
+                                                directMessages: [...prev.directMessages, subscriptionData.data.newDirectMessage]
+                                            }
+                                        },
+                                        onError: err => console.error(err),
+                                    })
+                                )}
                                 />
                         );
                     }

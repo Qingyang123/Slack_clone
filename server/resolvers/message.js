@@ -1,21 +1,9 @@
-import { PubSub, withFilter } from 'apollo-server';
 import { requiresAuth, requiresTeamAccess } from '../permissions';
+import { withFilter } from 'apollo-server';
+import pubsub from '../pubsub';
 
-const pubsub = new PubSub();
 
 const NEW_CHANNEL_MESSAGE = "NEW_CHANNEL_MESSAGE";
-
-const isChannelMember = async (channelId, models, user) => {
-    const channel = await models.Channel.findOne({ where: { id: channelId }})
-    console.log('channel: ', channel);
-    const member = await models.Member.findOne({where: { teamId: channel.dataValues.teamId , userId: user.id}})
-
-    if(!member) {
-        console.log("You have to be a member of the team to subscribe to messages")
-        return false
-    }
-    return true
-}
 
 export default {
     Message: {
