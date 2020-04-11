@@ -33,7 +33,7 @@ const InvitePeopleModal = ({
                 </Form.Field>
                 {
                     
-                    (!!(touched.email && errors)) && (
+                    ((!!touched.email && errors)) && (
                         <Message negative>
                             <Message.Header>{errors.message}</Message.Header>
                         </Message>
@@ -79,11 +79,7 @@ export default compose(
                 onClose();
             } else {
                 setSubmitting(false);
-                setErrors({
-                    path: 'email',
-                    message: 'this user is already part of the team',
-                    __typename: "Error"
-                });
+                setErrors(normalizeErrors(errors));
                 
             }
         }

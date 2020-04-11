@@ -64,7 +64,7 @@ export default ({ uri, includeExtensions, ...requestOptions } = {}) => {
         } = operation;
         const http = { ...defaultHttpOptions, ...httpOptions };
         const body = { operationName, variables };
-        console.log(variables);
+
         if (includeExtensions || http.includeExtensions) body.extensions = extensions;
 
         // not sending the query (i.e persisted queries)

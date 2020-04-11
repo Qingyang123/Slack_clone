@@ -4,8 +4,9 @@ import findIndex from 'lodash/findIndex'
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash/flowRight';
-import { Form, Button, Modal, Input } from 'semantic-ui-react';
+import { Checkbox, Form, Button, Modal, Input } from 'semantic-ui-react';
 import { meQuery } from '../graphql/team';
+import SelectMultiUsers from './SelectMultiUsers';
 
 const AddChannelModal = ({
     open, 
@@ -16,6 +17,8 @@ const AddChannelModal = ({
     handleSubmit,
     isSubmitting,
     resetForm,
+    setFieldValue,
+    teamId
 }) => (
     <Modal open={open} onClose={(e) => {
         resetForm();
@@ -33,6 +36,23 @@ const AddChannelModal = ({
                         onChange={handleChange}
                         onBlur={handleBlur}/>
                 </Form.Field>
+                <Form.Field>
+                    <Checkbox 
+                        value={!values.public} label='Private'
+                        onChange={(e, { checked }) => setFieldValue('public', !checked)}
+                        toggle />
+                </Form.Field>
+                {
+                    !values.public && (
+                    <Form.Field>
+                        <SelectMultiUsers 
+                            placeholder="select members to invite"
+                            teamId={teamId}
+                            value={values.members}
+                            handleChange={(e, {value}) => setFieldValue('members', value)}
+                            />
+                    </Form.Field>)
+                }
                 <Form.Group>
                     <Button fluid type='submit' disabled={isSubmitting} onClick={handleSubmit}>Add Channel</Button>
                     <Button fluid disabled={isSubmitting} onClick={() => {
@@ -47,8 +67,8 @@ const AddChannelModal = ({
 )
 
 const createChannelMutation = gql`
-    mutation($teamId: Int!, $name: String!) {
-        createChannel(teamId: $teamId, name: $name) {
+    mutation($teamId: Int!, $name: String!, $public: Boolean, $members: [Int!]) {
+        createChannel(teamId: $teamId, name: $name, public: $public, members: $members) {
             ok
             channel {
                 id
@@ -61,10 +81,16 @@ const createChannelMutation = gql`
 export default compose(
     graphql(createChannelMutation),
     withFormik({
-        mapPropsToValues: () => ({ name: '' }),
+        mapPropsToValues: () => ({ name: '', public: true, members: [] }),
         handleSubmit: async (values, { props: { onClose, teamId, mutate }, setSubmitting }) => {
+            console.log(teamId, values);
             await mutate({
-                variables: { teamId: parseInt(teamId, 10), name: values.name },
+                variables: {
+                    teamId: parseInt(teamId, 10), 
+                    name: values.name,
+                    public: values.public,
+                    members: values.members
+                },
                 optimisticResponse: {
                     __typename: "Mutation",
                     createChannel: {

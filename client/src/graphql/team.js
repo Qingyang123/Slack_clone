@@ -21,3 +21,13 @@ export const meQuery = gql`
         }
     }
 `;
+
+
+export const getTeamMembersQuery = gql`
+    query ($teamId: Int! ){
+        getTeamMembers(teamId: $teamId) {
+            username
+            id
+        }
+    }
+`;
