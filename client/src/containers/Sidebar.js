@@ -39,8 +39,6 @@ class Sidebar extends Component {
 
     render() {
         const { team, teams, username, userId } = this.props
-        console.log('users: ', team.directMessageMembers);
-        console.log('userId: ', userId);
         return (
             <>
                 <Teams 

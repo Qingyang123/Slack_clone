@@ -34,6 +34,7 @@ export default {
 
         addTeamMember: requiresAuth.createResolver(async (parent, { email, teamId }, { models, user }) => {
             try {
+                console.log('try');
                 const teamPromise = models.Team.findOne({ where: { id: teamId } }, { raw: true });
                 const userToAddPromise = models.User.findOne({ where: { email } }, { raw: true });
 
@@ -61,7 +62,7 @@ export default {
                     ok: true
                 }
             } catch(err) {
-                
+                console.log('catch');
                 return {
                     ok: false,
                     errors: formatErrors(err, models)

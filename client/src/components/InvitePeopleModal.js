@@ -3,7 +3,7 @@ import { withFormik } from 'formik';
 import gql from 'graphql-tag';
 import { graphql } from 'react-apollo';
 import * as compose from 'lodash/flowRight';
-import { Form, Button, Modal, Input } from 'semantic-ui-react';
+import { Message, Form, Button, Modal, Input } from 'semantic-ui-react';
 import normalizeErrors from '../normalizeErrors';
 
 const InvitePeopleModal = ({
@@ -13,7 +13,10 @@ const InvitePeopleModal = ({
     handleChange,
     handleBlur,
     handleSubmit,
-    isSubmitting
+    isSubmitting,
+    touched,
+    errors,
+    resetForm
 }) => (
     <Modal open={open} onClose={onClose}>
         <Modal.Header>Add people to your team</Modal.Header>
@@ -28,6 +31,15 @@ const InvitePeopleModal = ({
                         onChange={handleChange}
                         onBlur={handleBlur}/>
                 </Form.Field>
+                {
+                    
+                    (!!(touched.email && errors)) && (
+                        <Message negative>
+                            <Message.Header>{errors.message}</Message.Header>
+                        </Message>
+                    )
+                    
+                }
                 <Form.Group widths='equal'>
                     <Button fluid type='submit' disabled={isSubmitting} onClick={handleSubmit}>Add User</Button>
                     <Button fluid disabled={isSubmitting} onClick={onClose}>Cancel</Button>
@@ -55,18 +67,24 @@ export default compose(
     withFormik({
         mapPropsToValues: () => ({ email: '' }),
         handleSubmit: async (values, { props: { onClose, teamId, mutate }, setSubmitting, setErrors }) => {
+
             const res = await mutate({
                 variables: { teamId: parseInt(teamId, 10), email: values.email },
             });
-            console.log(res);
+
             const { ok, errors } = res.data.addTeamMember;
+            console.log(ok, errors);
             if (ok) {
-                // Add success message
                 setSubmitting(false);
                 onClose();
             } else {
                 setSubmitting(false);
-                setErrors(normalizeErrors(errors));
+                setErrors({
+                    path: 'email',
+                    message: 'this user is already part of the team',
+                    __typename: "Error"
+                });
+                
             }
         }
     })

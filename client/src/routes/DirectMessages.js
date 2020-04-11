@@ -37,7 +37,6 @@ const DirectMessages = ({ mutate, data: { loading, me, getUser }, match: { param
             <Header channelName={getUser.username} />
             <DirectMessageContainer teamId={team.id} otherUserId={userId}/>
             <SendMessage placeholder={userId} onSubmit={async (text) => {
-                console.log('here');
                 const res = await mutate({
                     variables: {
                         text,
@@ -61,7 +60,6 @@ const DirectMessages = ({ mutate, data: { loading, me, getUser }, match: { param
                             }
                     }
                 })
-                console.log(res);
                 
             }}/>
         </AppLayout>
