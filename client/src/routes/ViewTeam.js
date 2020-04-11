@@ -21,6 +21,7 @@ const ViewTeam = ({ mutate, data: { loading, me }, match: { params: { teamId, ch
     if (loading) return null;
     console.log(me);
     const { teams, username, id } = me;
+    console.log(teams);
     if (teams.length === 0) return <Redirect to='/create-team'/>
 
     const teamIdInteger = parseInt(teamId, 10);
