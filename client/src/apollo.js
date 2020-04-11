@@ -5,10 +5,12 @@ import { setContext } from 'apollo-link-context';
 import { ApolloLink, split } from 'apollo-link';
 import { WebSocketLink } from 'apollo-link-ws';
 import { getMainDefinition } from 'apollo-utilities';
+import createFileLink from './createFileLink';
+// import { createUploadLink } from 'apollo-upload-client';
 
 
 // Create an http link:
-const httpLink = createHttpLink({
+const httpLink = createFileLink({
 	uri: "http://localhost:4000/graphql"
 })
 

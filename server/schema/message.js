@@ -1,5 +1,6 @@
 const { gql } = require('apollo-server-express');
 
+
 export default gql`
     type Message {
         id: Int!
@@ -7,6 +8,13 @@ export default gql`
         user: User!
         channel: Channel!
         createdAt: String!
+        url: String
+        filetype: String
+    }
+
+    input File {
+        type: String!
+        path: String!
     }
 
     type Subscription {
@@ -18,6 +26,6 @@ export default gql`
     }
 
     type Mutation {
-        createMessage(channelId: Int!, text: String!): Boolean!
+        createMessage(channelId: Int!, text: String, file: Upload): Boolean!
     }
 `;

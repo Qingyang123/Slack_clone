@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { ApolloServer } from 'apollo-server-express';
 import { fileLoader, mergeTypes, mergeResolvers } from 'merge-graphql-schemas';
 import { createServer } from 'http';
+import formidable from 'formidable';
 
 
 import models from './models';
@@ -38,6 +39,40 @@ const addUser = async (req, res, next) => {
     next();
 };
 
+
+const uploadDir = 'files';
+
+const fileMiddleware = (req, res, next) => {
+    if (!req.is('multipart/form-data')) {
+        return next();
+    }
+
+    const form = formidable.IncomingForm({
+        uploadDir,
+    });
+
+    form.parse(req, (error, { operations }, files) => {
+        if (error) {
+        console.log(error);
+        }
+
+        const document = JSON.parse(operations);
+
+        if (Object.keys(files).length) {
+            const { file: { type, path: filePath } } = files;
+            console.log(type);
+            console.log(filePath);
+            document.variables.file = {
+                type,
+                path: filePath,
+            };
+        }
+
+        req.body = document;
+        next();
+    });
+};
+
 app.use(addUser);
 
   
@@ -54,6 +89,14 @@ const server = new ApolloServer({
         SECRET,
         SECRET2
     }),
+    uploads: {
+        // Limits here should be stricter than config for surrounding
+        // infrastructure such as Nginx so errors can be handled elegantly by
+        // graphql-upload:
+        // https://github.com/jaydenseric/graphql-upload#type-processrequestoptions
+        maxFileSize: 10000000, // 10 MB
+        maxFiles: 1
+    },
     subscriptions: {
         onConnect: async(connectionParams, webSocket, context) => {
             const { token, refreshToken } = connectionParams;
@@ -79,7 +122,9 @@ const server = new ApolloServer({
     },
 });
 
-server.applyMiddleware({ app });
+app.use(fileMiddleware);
+
+server.applyMiddleware({ app, fileMiddleware });
 const httpServer = createServer(app);
 server.installSubscriptionHandlers(httpServer);
 

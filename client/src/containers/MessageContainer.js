@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import moment from 'moment';
-import Messages from '../components/Messages';
 import { Comment } from 'semantic-ui-react';
+import Messages from '../components/Messages';
+import FileUpload from '../components/FileUpload';
 
 
 const newChannelMessageSubscription = gql`
@@ -48,28 +49,30 @@ class MessageWrapper extends Component {
     }
 
     render() {
-        const {messages} = this.props
+        const {messages, channelId} = this.props
 
         return (
             <Messages>
-                <Comment.Group>
-                    {
-                        messages.map(m => (
-                            <Comment key = {`message-${m.id}`}>
-                                <Comment.Content>
-                                    <Comment.Author as='a'>{m.user.username}</Comment.Author>
-                                    <Comment.Metadata>
-                                        { moment(m.createdAt,"ddd MMM D YYYY HH:mm:ss").fromNow()}
-                                    </Comment.Metadata>
-                                    <Comment.Text>{m.text}</Comment.Text>
-                                    <Comment.Actions>
-                                    <Comment.Action>Reply</Comment.Action>
-                                    </Comment.Actions>
-                                </Comment.Content>
-                            </Comment>
-                        ))
-                    }
-                </Comment.Group>
+                <FileUpload disableClick channelId={channelId}>
+                    <Comment.Group>
+                        {
+                            messages.map(m => (
+                                <Comment key = {`message-${m.id}`}>
+                                    <Comment.Content>
+                                        <Comment.Author as='a'>{m.user.username}</Comment.Author>
+                                        <Comment.Metadata>
+                                            { moment(m.createdAt,"ddd MMM D YYYY HH:mm:ss").fromNow()}
+                                        </Comment.Metadata>
+                                        <Comment.Text>{m.text}</Comment.Text>
+                                        <Comment.Actions>
+                                        <Comment.Action>Reply</Comment.Action>
+                                        </Comment.Actions>
+                                    </Comment.Content>
+                                </Comment>
+                            ))
+                        }
+                    </Comment.Group>
+                </FileUpload>
             </Messages>
         )
     }
