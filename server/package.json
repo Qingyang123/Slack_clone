@@ -30,6 +30,7 @@
     "express": "^4.17.1",
     "formidable": "^1.1.1",
     "graphql": "^14.6.0",
+    "graphql-redis-subscriptions": "^2.2.1",
     "graphql-subscriptions": "^1.1.0",
     "graphql-tools": "^4.0.7",
     "jsonwebtoken": "^8.5.1",
