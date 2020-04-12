@@ -22,7 +22,7 @@ export default gql`
     }
 
     type Query {
-        messages(channelId: Int!): [Message]!
+        messages(channelId: Int!, offset: Int!): [Message]!
     }
 
     type Mutation {

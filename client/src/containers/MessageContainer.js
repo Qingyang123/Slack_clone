@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Query } from 'react-apollo';
 import gql from 'graphql-tag';
 import moment from 'moment';
-import { Comment } from 'semantic-ui-react';
+import { Button, Comment } from 'semantic-ui-react';
 import Messages from '../components/Messages';
 import FileUpload from '../components/FileUpload';
 
@@ -21,6 +21,10 @@ const newChannelMessageSubscription = gql`
 `;
 
 class MessageWrapper extends Component {
+
+    state = {
+        hasMoreMessages: true
+    };
 
     componentWillMount() {
         // console.log('props: ', this.props.channelId)
@@ -49,12 +53,32 @@ class MessageWrapper extends Component {
     }
 
     render() {
-        const {messages, channelId} = this.props
+        const {messages, channelId, fetchMore} = this.props
 
         return (
             <Messages>
                 <FileUpload disableClick channelId={channelId}>
                     <Comment.Group>
+                        {
+                            this.state.hasMoreMessages && <Button onClick={() => fetchMore({
+                                variables: {
+                                    channelId: parseInt(channelId),
+                                    offset: messages.length
+                                },
+                                updateQuery: (prev, { fetchMoreResult }) => {
+                                    if (!fetchMoreResult) {
+                                        return prev;
+                                    }
+                                    if(fetchMoreResult.messages.length < 10) {
+                                        this.setState({hasMoreMessages: false})
+                                    }
+                                    return {
+                                        ...prev,
+                                        messages: [ ...fetchMoreResult.messages, ...prev.messages]
+                                    }
+                                }
+                            })}>Load more</Button>
+                        }
                         {
                             messages.map(m => (
                                 <Comment key = {`message-${m.id}`}>
@@ -84,10 +108,10 @@ class MessageContainer extends Component {
     render() {
         const { channelId } = this.props;
         return (
-            <Query query={messagesQuery} variables={{ channelId }} fetchPolicy={"network-only"}>
+            <Query query={messagesQuery} variables={{ channelId, offset: 0 }} fetchPolicy={"network-only"}>
                 {
                     (props) => {
-                        const { subscribeToMore, loading, error, data } = props;
+                        const { subscribeToMore, loading, error, data, fetchMore } = props;
                         if (loading) return null;
                         if (error) console.log(error);
                         if (data) console.log(data);
@@ -97,6 +121,7 @@ class MessageContainer extends Component {
                             <MessageWrapper
                                 messages={messages}
                                 channelId={channelId}
+                                fetchMore={fetchMore}
                                 subscribeToNewMessages={() => (
                                     subscribeToMore({
                                         document: newChannelMessageSubscription,
@@ -124,8 +149,8 @@ class MessageContainer extends Component {
 
 
 const messagesQuery = gql`
-    query($channelId: Int!) {
-        messages(channelId: $channelId) {
+    query($channelId: Int!, $offset: Int!) {
+        messages(channelId: $channelId, offset: $offset) {
             id
             text
             user {
